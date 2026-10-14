@@ -1,0 +1,11 @@
+title = "FIAP CP05 - Deteccao de segredos"
+
+[extend]
+useDefault = true
+
+# Regra adicional para uma demonstracao segura, sem usar credenciais verdadeiras.
+[[rules]]
+id = "cp05-secret-demo"
+description = "Credencial inteiramente ficticia usada na demonstracao do CP05"
+regex = '''CP05_DEMO_SECRET\s*=\s*["']?CP05-[A-Z0-9]{12,}["']?'''
+keywords = ["CP05_DEMO_SECRET"]

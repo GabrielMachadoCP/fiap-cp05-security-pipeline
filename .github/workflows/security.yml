@@ -1,0 +1,54 @@
+name: Security Pipeline
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: Gitleaks - Segredos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter codigo e historico do Git
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Procurar segredos
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+          GITLEAKS_ENABLE_COMMENTS: 'false'
+
+  semgrep:
+    name: Semgrep - Codigo
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep:latest
+    steps:
+      - name: Obter codigo
+        uses: actions/checkout@v6
+      - name: Analisar codigo e reprovar em caso de alerta
+        run: semgrep scan --config .semgrep.yml --error .
+
+  trivy:
+    name: Trivy - Docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter codigo
+        uses: actions/checkout@v6
+      - name: Construir imagem Docker
+        run: docker build -t cp05-site:ci .
+      - name: Bloquear CVEs criticos
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: cp05-site:ci
+          format: table
+          severity: CRITICAL
+          exit-code: '1'
+          ignore-unfixed: false

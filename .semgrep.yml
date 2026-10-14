@@ -1,0 +1,12 @@
+rules:
+  - id: cp05-python-eval
+    message: "Evite eval(): execucao dinamica de codigo pode ser perigosa."
+    severity: ERROR
+    languages: [python]
+    pattern: eval(...)
+
+  - id: cp05-javascript-eval
+    message: "Evite eval(): execucao dinamica de codigo pode ser perigosa."
+    severity: ERROR
+    languages: [javascript, typescript]
+    pattern: eval(...)
